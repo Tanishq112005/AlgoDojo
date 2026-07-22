@@ -13,6 +13,7 @@ type TestCase = {
 function TestCases() {
 
   const [results, setResults] = useState<string[]>([]);
+  const [userOutputs, setUserOutputs] = useState<string[]>([]);
   const [isRunningTests, setIsRunningTests] = useState(false);
   const [activeTestCaseIndex, setActiveTestCaseIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,23 +29,45 @@ function TestCases() {
 
   useEffect(() => {
     setResults(new Array(sampleTestCases.length).fill('pending'));
+    setUserOutputs(new Array(sampleTestCases.length).fill(''));
   }, [sampleTestCases]);
 
   
   const runSingleTestCase = async (code: string, lang: string, input: string): Promise<{ stdout: string; stderr: string }> => {
     try {
-      const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+      let compiler = 'gcc-head';
+      let pistonLang = lang.toLowerCase();
+      
+      if (pistonLang === 'c++' || pistonLang === 'cpp') {
+        compiler = 'gcc-head';
+      } else if (pistonLang === 'python') {
+        compiler = 'cpython-head';
+      } else if (pistonLang === 'javascript' || pistonLang === 'js') {
+        compiler = 'nodejs-20.17.0';
+      } else if (pistonLang === 'java') {
+        compiler = 'openjdk-jdk-22+36';
+      }
+
+      const res = await fetch('https://wandbox.org/api/compile.json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          language: lang,
-          version: '*',
-          files: [{ name: `main.${lang}`, content: code }],
+          compiler: compiler,
+          code: code,
           stdin: input,
         }),
       });
       const data = await res.json();
-      return { stdout: data.run?.stdout || '', stderr: data.run?.stderr || '' };
+      
+      if (data.compiler_error) {
+        return { stdout: '', stderr: data.compiler_error };
+      }
+      
+      if (data.status !== '0' && data.program_error) {
+        return { stdout: '', stderr: data.program_error };
+      }
+      
+      return { stdout: data.program_output || '', stderr: '' };
     } catch (err) {
       console.error('Execution error:', err);
       return { stdout: '', stderr: 'Execution failed' };
@@ -65,7 +88,9 @@ function TestCases() {
 
     setIsRunningTests(true);
     const newResults: string[] = new Array(sampleTestCases.length).fill('pending');
+    const newOutputs: string[] = new Array(sampleTestCases.length).fill('');
     setResults(newResults);
+    setUserOutputs(newOutputs);
 
     for (let i = 0; i < sampleTestCases.length; i++) {
       setActiveTestCaseIndex(i);
@@ -74,13 +99,18 @@ function TestCases() {
 
       if (stderr) {
         newResults[i] = 'failed';
+        newOutputs[i] = `Error:\n${stderr}`;
         console.error(`Test Case ${i + 1} Error:`, stderr);
-      } else if (stdout.trim() === testCase.expectedOutput.trim()) {
-        newResults[i] = 'passed';
       } else {
-        newResults[i] = 'failed';
+        newOutputs[i] = stdout;
+        if (stdout.trim() === testCase.expectedOutput.trim()) {
+          newResults[i] = 'passed';
+        } else {
+          newResults[i] = 'failed';
+        }
       }
       setResults([...newResults]);
+      setUserOutputs([...newOutputs]);
     }
 
     setIsRunningTests(false);
@@ -174,9 +204,6 @@ function TestCases() {
           <button onClick={handleRunCode} className="run-code-btn" disabled={isProcessing}>
             {isRunningTests ? 'Running...' : 'Run Code'}
           </button>
-          <button onClick={handleSubmitCode} className="submit-btn" disabled={isProcessing}>
-            {isSubmitting ? 'Submitting...' : 'Submit'}
-          </button>
         </div>
       </div>
 
@@ -205,6 +232,9 @@ function TestCases() {
           </div>
           <div className="detail-item">
             <span className="detail-label">Your Output:</span>
+            {userOutputs[activeTestCaseIndex] && (
+              <pre className="detail-value">{userOutputs[activeTestCaseIndex]}</pre>
+            )}
             <span className={`detail-result ${results[activeTestCaseIndex]}`}>
               {results[activeTestCaseIndex]}
             </span>
