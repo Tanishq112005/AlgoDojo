@@ -1,6 +1,6 @@
 # AlgoDojo
 
-[![GitHub issues](https://img.shields.io/github/issues/Tanishq112005/Test_app)](https://github.com/Tanishq112005/Test_app/issues) [![GitHub forks](https://img.shields.io/github/forks/Tanishq112005/Test_app)](https://github.com/Tanishq112005/Test_app/network/members) [![GitHub stars](https://img.shields.io/github/stars/Tanishq112005/Test_app)](https://github.com/Tanishq112005/Test_app/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/Tanishq112005/AlgoDojo)](https://github.com/Tanishq112005/Test_app/issues) [![GitHub forks](https://img.shields.io/github/forks/Tanishq112005/AlgoDojo](https://github.com/Tanishq112005/AlgoDojo/network/members) [![GitHub stars](https://img.shields.io/github/stars/Tanishq112005/AlgoDojo)](https://github.com/Tanishq112005/AlgoDojo/stargazers)
 
 Welcome to **AlgoDojo**, your personal coding gymnasium for mastering algorithmic challenges.
 
@@ -65,7 +65,43 @@ Whether you are aiming for a new rating milestone or preparing to land your drea
 *   **Database:** MongoDB
 *   **Authentication:** JSON Web Tokens (JWT)
 *   **Web Scraping:** [Puppeteer](https://pptr.dev/) (for gathering problem data)
-*   **Containerization:** Docker
+*   **Containerization:** Docker (Backend deployed on Render)
+*   **Email Service:** Brevo (formerly Sendinblue)
+*   **Code Execution:** Wandbox API
+
+---
+
+## 🏗️ Architectural Design
+
+AlgoDojo is designed with a modern decoupled architecture. The frontend handles all user interactions and state management, while the backend serves as a robust API gateway for database operations, authentication, web scraping, and external integrations (code execution and emails).
+
+```mermaid
+graph TD
+    %% Define styles
+    classDef frontend fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff
+    classDef backend fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
+    classDef db fill:#f59e0b,stroke:#b45309,stroke-width:2px,color:#fff
+    classDef external fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:#fff
+
+    %% Nodes
+    User(("User Browser"))
+    FE["Frontend (React / Vite) <br/> Hosted on Vercel"]:::frontend
+    BE["Backend (Node / Express) <br/> Hosted on Render Docker"]:::backend
+    DB[("MongoDB <br/> Atlas Cluster")]:::db
+    
+    Wandbox["Wandbox API <br/> (Code Compilation)"]:::external
+    Brevo["Brevo API <br/> (OTP Emails)"]:::external
+    Puppeteer["Puppeteer <br/> (Problem Scraper)"]:::external
+
+    %% Connections
+    User <-->|HTTP/REST| FE
+    FE <-->|REST API| BE
+    
+    BE <-->|Mongoose| DB
+    BE -->|Axios POST| Wandbox
+    BE -->|Axios POST| Brevo
+    BE -->|Headless Chrome| Puppeteer
+```
 
 ---
 
@@ -89,8 +125,8 @@ Make sure you have the following installed on your machine:
 
 2.  **Clone your forked repository** (replace `YOUR_USERNAME` with your GitHub username):
     ```bash
-    git clone https://github.com/YOUR_USERNAME/Test_app.git
-    cd Test_app
+    git clone https://github.com/YOUR_USERNAME/AlgoDojo.git
+    cd AlgoDojo
     ```
 
 3.  **Set up the Frontend:**
@@ -115,19 +151,18 @@ In the `backend` directory, create a new file named `.env` and add the following
 PORT_NUMBER=8000
 MONGO_DB=your_mongodb_connection_string
 JWT_SECRET=your_super_secret_jwt_key
-GOOGLE_API_KEY=your_google_api_key
-COMPANY_MAIL=your_gmail_address_for_sending_otps
-COMPANY_PASSWORD=your_16_digit_google_app_password
-
+COMPANY_MAIL=your_verified_brevo_email_address
+BREVO_API_KEY=your_brevo_api_key
+PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 ```
 
 ### **How to get these values:**
 *   **`PORT_NUMBER`**: The port on which your backend server will run (e.g., 8000).
-*   **`MONGO_DB`**: Your connection string from [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+*   **`MONGO_DB`**: Your connection string from [MongoDB Atlas](https://www.mongodb.com/cloud/atlas). Make sure to include the database name (e.g., `...mongodb.net/test?...`).
 *   **`JWT_SECRET`**: A long, random, and secret string for signing authentication tokens.
-*   **`GOOGLE_API_KEY`**: Get this from the [Google AI Studio](https://console.cloud.google.com/).
-*   **`COMPANY_MAIL`**: The Gmail account you want to use to send verification emails/OTPs.
-*   **`COMPANY_PASSWORD`**: **This is NOT your main Google account password.** It is a special 16-digit **App Password**. You can generate one by going to your Google Account -> Security -> 2-Step Verification -> App Passwords.
+*   **`COMPANY_MAIL`**: The email address you verified on your Brevo account to send OTPs.
+*   **`BREVO_API_KEY`**: Get your v3 API key from your [Brevo Dashboard](https://app.brevo.com/settings/keys/api).
+*   **`PUPPETEER_EXECUTABLE_PATH`**: The path to your Chrome installation. Use `/usr/bin/google-chrome` if deploying on Linux/Render via Docker, or your local path (e.g., `C:\Program Files\Google\Chrome\Application\chrome.exe`) for local Windows testing.
 
 #### 2. Frontend Configuration
 For the frontend to communicate with the backend, you need to set the backend URL.
@@ -206,6 +241,6 @@ Contributions are what make the open-source community such an amazing place to l
 
 1. Tanishq - [@Tanishq112005](https://github.com/Tanishq112005)  
 2. email -(algodojo1@gmail.com)
-3. Project Link: [https://github.com/Tanishq112005/Test_app](https://github.com/Tanishq112005/Test_app)
+3. Project Link: [https://github.com/Tanishq112005/AlgoDojo](https://github.com/Tanishq112005/AlgoDojo)
 4. live-project-on : [AlgoDojo](algodojo.vercel.app) 
 5. linkedin : [Tanishq Jain](https://www.linkedin.com/in/tanishq-jain-6b90b1292/) 
