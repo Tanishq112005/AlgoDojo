@@ -1,5 +1,5 @@
 
-const BACKEND_URL = "https://algodojo.onrender.com"; 
+const BACKEND_URL = "https://algodojo-2vcc.onrender.com"; 
 
 
 export const codeforces_get_question_list = `${BACKEND_URL}/problems_codeforces`;
