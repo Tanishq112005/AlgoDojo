@@ -1,5 +1,5 @@
 
-const BACKEND_URL = "http://localhost:8000"; 
+const BACKEND_URL = "https://algodojo.onrender.com"; 
 
 
 export const codeforces_get_question_list = `${BACKEND_URL}/problems_codeforces`;
