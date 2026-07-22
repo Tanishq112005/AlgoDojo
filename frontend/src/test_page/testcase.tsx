@@ -1,8 +1,6 @@
 import  { useState, useEffect } from 'react';
 import { useSelector} from 'react-redux';
-import axios from 'axios';
 import { type RootState } from '../redux_state_manegemet/store';
-import { checking_link } from '../keys/links';
 
 
 type TestCase = {
@@ -16,16 +14,12 @@ function TestCases() {
   const [userOutputs, setUserOutputs] = useState<string[]>([]);
   const [isRunningTests, setIsRunningTests] = useState(false);
   const [activeTestCaseIndex, setActiveTestCaseIndex] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<string | null>(null);
 
 
   const sampleTestCases = (useSelector((s: RootState) => s.sample_test.value) as TestCase[]) || [];
   const lang = useSelector((s: RootState) => s.lang.value);
   const files = useSelector((s: RootState) => s.files.value);
   const question_is_on = useSelector((s: RootState) => s.question_is_on.value);
-  const codeforces: any[] = useSelector((s: RootState) => s.codeforcesquestion.value);
-  const leetcode: any[] = useSelector((s: RootState) => s.leetcodequestionlist.value);
 
   useEffect(() => {
     setResults(new Array(sampleTestCases.length).fill('pending'));
@@ -76,7 +70,7 @@ function TestCases() {
 
  
   const handleRunCode = async () => {
-    if (isRunningTests || isSubmitting) return;
+    if (isRunningTests) return;
     if (!files || !files[question_is_on - 1]) {
       alert('Error: Code file not found for the current question.');
       return;
@@ -116,58 +110,6 @@ function TestCases() {
     setIsRunningTests(false);
   };
 
-  
-  const handleSubmitCode = async () => {
-    if (isRunningTests || isSubmitting) return;
-
-    const u = question_is_on - 1;
-    if (!files || !files[u]) {
-        alert('Error: Code file not found for submission.');
-        return;
-    }
-    
-    setIsSubmitting(true);
-    setSubmissionResult("Your Solution Is Being Judged, Please Wait...");
-
-    try {
-        const currentProblem = u < codeforces.length 
-            ? codeforces[u] 
-            : leetcode[u - codeforces.length];
-        
-        const code = files[u].value;
-
-       
-        const payload = {
-            code: code,
-            question: {
-                descriptionHtml: currentProblem.descriptionHtml || currentProblem.problem?.statement || "No description available.", // Example for Codeforces
-                sampleTestCase: currentProblem.sampleTestCase || currentProblem.input?.standard || "No sample case available.",     // Example for Codeforces
-                titleSlug: currentProblem.titleSlug || currentProblem.name || "Untitled Problem"                               // Example for Codeforces
-            }
-        };
-
-    
-        if (!payload.question.descriptionHtml) {
-             throw new Error("Could not find a valid problem description to send.");
-        }
-
- 
-        const response = await axios.post(checking_link, payload);
-        
-        setSubmissionResult(response.data.result || "Submission processed, but no result message was returned.");
-
-    } catch (err: any) {
-      
-        const errorMessage = err.response?.data?.Error || err.response?.data?.message || err.message || "An unknown error occurred.";
-        setSubmissionResult(`Error: ${errorMessage}`);
-    }
-
-};
-  
-  const closeSubmissionModal = () => {
-    setSubmissionResult(null);
-    setIsSubmitting(false);
-  }
 
   const getStatusClass = (status: string) => {
     if (status === 'passed') return 'status-dot passed';
@@ -177,25 +119,12 @@ function TestCases() {
 
   const activeTestCase = sampleTestCases[activeTestCaseIndex];
 
-  const isProcessing = isRunningTests || isSubmitting;
+  const isProcessing = isRunningTests;
 
   return (
     <div className="test-cases-container">
 
-      {submissionResult && (
-        <div className="submission-overlay">
-            <div className="submission-modal">
-                <h3>Submission Result</h3>
-                <div className="submission-message">
-                  
-                    <pre>{submissionResult}</pre>
-                </div>
-                <button onClick={closeSubmissionModal} className="close-modal-btn">
-                    Close
-                </button>
-            </div>
-        </div>
-      )}
+
 
     
       <div className="test-cases-header">
