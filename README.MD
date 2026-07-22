@@ -1,6 +1,6 @@
 # AlgoDojo
 
-[![GitHub issues](https://img.shields.io/github/issues/Tanishq112005/AlgoDojo)](https://github.com/Tanishq112005/Test_app/issues) [![GitHub forks](https://img.shields.io/github/forks/Tanishq112005/AlgoDojo](https://github.com/Tanishq112005/AlgoDojo/network/members) [![GitHub stars](https://img.shields.io/github/stars/Tanishq112005/AlgoDojo)](https://github.com/Tanishq112005/AlgoDojo/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/Tanishq112005/AlgoDojo)](https://github.com/Tanishq112005/Test_app/issues) [![GitHub forks](https://img.shields.io/github/forks/Tanishq112005/AlgoDojo)](https://github.com/Tanishq112005/AlgoDojo/network/members) [![GitHub stars](https://img.shields.io/github/stars/Tanishq112005/AlgoDojo)](https://github.com/Tanishq112005/AlgoDojo/stargazers)
 
 Welcome to **AlgoDojo**, your personal coding gymnasium for mastering algorithmic challenges.
 
